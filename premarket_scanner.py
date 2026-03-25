@@ -9,10 +9,10 @@
 ║   score composito di gap% e volume assoluto.                     ║
 ║                                                                  ║
 ║   Strategia ottimizzazione chiamate API EODHD:                   ║
-║     1. Lista S&P 500 da Wikipedia    →  0 API calls             ║
-║     2. Bulk EOD US exchange          →  1 API call              ║
-║     3. Intraday 5min × max 50 ticker → 50 API calls             ║
-║     TOTALE: ~51 chiamate                                         ║
+║     1. Lista S&P 500 da EODHD GSPC.INDX  →  1 API call         ║
+║     2. Bulk EOD US exchange              →  1 API call          ║
+║     3. Intraday 5min × max 50 ticker     → 50 API calls         ║
+║     TOTALE: ~52 chiamate                                         ║
 ║                                                                  ║
 ║   Output:                                                        ║
 ║     baseline.json  — dati baseline per il frontend              ║
@@ -72,39 +72,81 @@ EASTERN         = ZoneInfo("America/New_York")
 
 
 # ============================================================
-# [02] LISTA S&P 500 — da Wikipedia (0 API calls)
+# [02] LISTA S&P 500 — da EODHD Index Components (1 API call)
 # ============================================================
-def get_sp500_tickers() -> list[str]:
+def get_sp500_tickers(api_key: str) -> list[str]:
     """
-    Recupera la lista aggiornata dei 503 componenti S&P 500 da Wikipedia
-    tramite pandas.read_html(). Zero token EODHD consumati.
+    Recupera la lista aggiornata dei componenti S&P 500 tramite l'endpoint
+    EODHD per i componenti degli indici (fundamentals/GSPC.INDX).
+
+    Endpoint: GET /api/fundamentals/GSPC.INDX?filter=Components&fmt=json
+    Risposta: dict { "AAPL": {"Code": "AAPL", "Name": "Apple Inc", ...}, ... }
 
     Normalizzazione ticker:
-        'BRK.B' → 'BRK-B'  (punto → trattino, formato EODHD)
+        'BRK.B' → 'BRK-B'  (punto → trattino, formato EODHD per il bulk EOD)
+
+    Fallback chain:
+        1. EODHD GSPC.INDX Components  (primario — affidabile in CI/CD)
+        2. Wikipedia read_html          (fallback locale — bloccato da GitHub Actions)
+        3. Lista hardcoded top-50       (emergenza assoluta)
+
+    Args:
+        api_key: Token EODHD (necessario per l'endpoint primario)
 
     Returns:
         Lista di stringhe ticker (es. ['AAPL', 'MSFT', 'BRK-B', ...])
     """
-    log.info("📋 Fetching S&P 500 constituents from Wikipedia...")
-    url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
-
+    # ── Primario: EODHD Index Components API ──
+    log.info("📋 Fetching S&P 500 constituents from EODHD (GSPC.INDX)...")
     try:
-        tables = pd.read_html(url, attrs={"id": "constituents"})
-        df = tables[0]
-        # Punto → trattino: EODHD usa 'BRK-B.US', non 'BRK.B.US'
-        tickers = df["Symbol"].str.replace(".", "-", regex=False).tolist()
-        log.info(f"✅ S&P 500: {len(tickers)} ticker trovati")
+        url = "https://eodhd.com/api/fundamentals/GSPC.INDX"
+        params = {
+            "api_token": api_key,
+            "filter":    "Components",
+            "fmt":       "json",
+        }
+        resp = requests.get(url, params=params, timeout=30)
+        resp.raise_for_status()
+        components = resp.json()   # dict: ticker → { Code, Name, Exchange, ... }
+
+        if not components or not isinstance(components, dict):
+            raise ValueError("Risposta EODHD vuota o formato inatteso")
+
+        # Estrai i ticker dal campo "Code" di ogni voce; fallback alla chiave del dict
+        tickers = [
+            v.get("Code", k).replace(".", "-")
+            for k, v in components.items()
+        ]
+        tickers = [t for t in tickers if t]  # rimuovi stringhe vuote
+        log.info(f"✅ S&P 500 da EODHD: {len(tickers)} ticker")
+        time.sleep(API_DELAY)
         return tickers
 
     except Exception as e:
-        log.error(f"❌ Errore Wikipedia: {e}. Fallback su top-25 per capitalizzazione.")
-        # Fallback hardcoded — solo emergenza (Wikipedia irraggiungibile)
-        return [
-            "AAPL", "MSFT", "NVDA", "AMZN", "GOOGL", "GOOG", "META",
-            "TSLA", "BRK-B", "JPM", "UNH", "V", "XOM", "LLY", "AVGO",
-            "MA", "JNJ", "PG", "HD", "COST", "MRK", "ABBV", "CVX",
-            "KO", "PEP"
-        ]
+        log.warning(f"⚠️  EODHD GSPC.INDX fallito: {e}. Provo Wikipedia...")
+
+    # ── Fallback: Wikipedia (funziona in locale, bloccata in GitHub Actions) ──
+    try:
+        tables = pd.read_html(
+            "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies",
+            attrs={"id": "constituents"}
+        )
+        tickers = tables[0]["Symbol"].str.replace(".", "-", regex=False).tolist()
+        log.info(f"✅ S&P 500 da Wikipedia: {len(tickers)} ticker")
+        return tickers
+    except Exception as e2:
+        log.error(f"❌ Wikipedia fallita: {e2}. Uso lista hardcoded di emergenza.")
+
+    # ── Emergenza: top-50 per capitalizzazione (hardcoded) ──
+    log.warning("⚠️  Usando lista hardcoded (50 titoli). Qualità screening ridotta.")
+    return [
+        "AAPL", "MSFT", "NVDA", "AMZN", "GOOGL", "GOOG", "META", "TSLA",
+        "BRK-B", "JPM", "UNH", "V", "XOM", "LLY", "AVGO", "MA", "JNJ",
+        "PG", "HD", "COST", "MRK", "ABBV", "CVX", "KO", "PEP", "WMT",
+        "BAC", "PFE", "AMD", "INTC", "NFLX", "DIS", "ADBE", "CRM", "CSCO",
+        "TMO", "ACN", "ABT", "DHR", "TXN", "NEE", "PM", "RTX", "HON",
+        "UPS", "QCOM", "IBM", "GE", "CAT", "BA"
+    ]
 
 
 # ============================================================
@@ -131,7 +173,9 @@ def fetch_bulk_eod_us(api_key: str) -> pd.DataFrame:
     params = {
         "api_token": api_key,
         "fmt":       "json",
-        "filter":    "extended",   # Include previousClose e change_p
+        # Nota: non usiamo filter=extended perché il campo 'previousClose'
+        # non è garantito nella risposta bulk. Lo screener gestisce
+        # l'assenza di previousClose con fallback su solo volume.
     }
 
     resp = requests.get(url, params=params, timeout=60)
@@ -187,28 +231,56 @@ def screen_top_movers(
     if df.empty:
         raise ValueError("Nessun ticker S&P 500 trovato nel bulk EOD. Verifica l'exchange.")
 
-    # Assicura che le colonne numeriche esistano
-    for col in ["open", "previousClose", "volume"]:
+    # Log diagnostico: mostra le colonne effettivamente ricevute dal bulk EOD
+    log.info(f"   Colonne bulk EOD disponibili: {list(df.columns)}")
+
+    # Pulizia base: rimuovi righe senza volume
+    for col in ["open", "volume"]:
         if col not in df.columns:
             df[col] = np.nan
+    df = df.dropna(subset=["volume"])
+    df = df[pd.to_numeric(df["volume"], errors="coerce").fillna(0) > 0]
+    df["volume"] = pd.to_numeric(df["volume"], errors="coerce")
 
-    # Pulizia: rimuovi righe con dati assenti o volume nullo
-    df = df.dropna(subset=["open", "previousClose", "volume"])
-    df = df[(df["volume"] > 0) & (df["previousClose"] > 0)]
+    # Percentile rank volume — sempre disponibile
+    df["vol_rank"] = df["volume"].rank(pct=True)
 
-    # Gap% assoluto: misura la discontinuità di prezzo rispetto alla chiusura precedente
-    df["gap_pct"] = ((df["open"] - df["previousClose"]) / df["previousClose"] * 100).abs()
+    # ── Gap%: opzionale, richiede previousClose ──
+    # Il campo 'previousClose' non è presente nel bulk EOD standard.
+    # Se disponibile, arricchisce lo score composito (60/40 vol/gap).
+    # Se assente, lo score si basa al 100% sul volume (proxy di liquidità).
+    has_prev_close = (
+        "previousClose" in df.columns
+        and pd.to_numeric(df["previousClose"], errors="coerce").notna().sum() > 0
+    )
 
-    # Score composito via percentile rank (0–1) — robusto a outlier estremi
-    df["vol_rank"]  = df["volume"].rank(pct=True)
-    df["gap_rank"]  = df["gap_pct"].rank(pct=True)
-    df["score"]     = 0.60 * df["vol_rank"] + 0.40 * df["gap_rank"]
+    if has_prev_close:
+        df["previousClose"] = pd.to_numeric(df["previousClose"], errors="coerce")
+        df["open"]          = pd.to_numeric(df["open"],          errors="coerce")
+        df = df[(df["previousClose"] > 0) & df["previousClose"].notna()]
+        df["gap_pct"]  = ((df["open"] - df["previousClose"]) / df["previousClose"] * 100).abs()
+        df["gap_rank"] = df["gap_pct"].rank(pct=True)
+        df["score"]    = 0.60 * df["vol_rank"] + 0.40 * df["gap_rank"]
+        log.info("   📐 Score composito: 60% volume + 40% gap%")
+    else:
+        df["gap_pct"] = 0.0
+        df["score"]   = df["vol_rank"]
+        log.warning("   ⚠️  previousClose assente nel bulk EOD — score basato solo su volume")
+
+    # Colonna prev_close per il frontend (usa close come proxy se previousClose assente)
+    if not has_prev_close:
+        close_col = "adjusted_close" if "adjusted_close" in df.columns else "close"
+        if close_col in df.columns:
+            df["previousClose"] = pd.to_numeric(df[close_col], errors="coerce")
+        else:
+            df["previousClose"] = 0.0
 
     top_df = df.nlargest(top_n, "score").reset_index(drop=True)
 
     log.info(f"✅ {len(top_df)} ticker selezionati")
     log.info(f"   Top 5 per score: {top_df['ticker'].head(5).tolist()}")
-    log.info(f"   Gap% medio top 50: {top_df['gap_pct'].mean():.2f}%")
+    if has_prev_close:
+        log.info(f"   Gap% medio top {top_n}: {top_df['gap_pct'].mean():.2f}%")
 
     return top_df
 
@@ -343,7 +415,7 @@ def run_premarket_scanner():
 
     Flusso:
         1. Validazione API key
-        2. Fetch lista S&P 500 da Wikipedia  (0 API calls)
+        2. Fetch lista S&P 500 da EODHD GSPC.INDX  (1 API call)
         3. Bulk EOD US                       (1 API call)
         4. Screener top 50 movers S&P 500
         5. Baseline intraday per 50 ticker   (max 50 API calls)
@@ -363,8 +435,8 @@ def run_premarket_scanner():
             "Imposta il secret su GitHub Actions o la variabile d'ambiente locale."
         )
 
-    # === STEP 1: Lista S&P 500 (0 API calls) ===
-    sp500_tickers = get_sp500_tickers()
+    # === STEP 1: Lista S&P 500 (1 API call via EODHD GSPC.INDX) ===
+    sp500_tickers = get_sp500_tickers(API_KEY)
 
     # === STEP 2: Bulk EOD (1 API call) ===
     bulk_df = fetch_bulk_eod_us(API_KEY)
