@@ -21,6 +21,11 @@ on:
   # Utile per test, debug o aggiornamento manuale della baseline
   workflow_dispatch:
 
+# Fix warning Node.js 24: forza le GitHub Actions a usare Node.js 24
+# invece di Node.js 20 (deprecato dal 2 giugno 2026).
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   run-scanner:
     runs-on: ubuntu-latest
@@ -38,32 +43,29 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          # Fetch completo per evitare problemi di push con history divergente
           fetch-depth: 1
 
       # --------------------------------------------------------
-      # Step 2: Setup Python 3.11 con cache pip
+      # Step 2: Setup Python 3.11
+      # La cache pip è ora agganciata a requirements.txt (fix errore
+      # "No file matched to requirements.txt or pyproject.toml").
       # --------------------------------------------------------
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'          # Cache dipendenze tra run consecutive
+          cache: 'pip'
+          cache-dependency-path: requirements.txt
 
       # --------------------------------------------------------
-      # Step 3: Installa dipendenze Python
+      # Step 3: Installa dipendenze da requirements.txt
       # lxml e html5lib: parser alternativi per pandas.read_html()
-      # (Wikipedia può richiedere lxml se il default beautifulsoup4 fallisce)
+      # (Wikipedia può richiedere lxml se il default fallisce)
       # --------------------------------------------------------
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip
-          pip install \
-            pandas>=2.0.0 \
-            numpy>=1.26.0 \
-            requests>=2.31.0 \
-            lxml \
-            html5lib
+          pip install -r requirements.txt
 
       # --------------------------------------------------------
       # Step 4: Esegui il pre-market scanner
