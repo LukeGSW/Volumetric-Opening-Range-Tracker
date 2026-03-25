@@ -1,0 +1,93 @@
+# ============================================================
+# VORT — GitHub Actions Workflow
+# Pre-Market Scanner  |  Modulo B
+#
+# Esecuzione: Lun–Ven alle 12:45 UTC
+#   EST (inverno, UTC-5): 12:45 UTC = 07:45 AM EST  → 1h 45min prima dell'apertura
+#   EDT (estate, UTC-4):  12:45 UTC = 08:45 AM EDT  → 45min prima dell'apertura
+#
+# Un singolo cron alle 12:45 UTC copre entrambe le stagioni con margine
+# sufficiente. Lo script si conclude tipicamente in 5–10 minuti, quindi
+# baseline.json è sempre pronto prima delle 09:30 EST/EDT.
+# ============================================================
+
+name: VORT Pre-Market Scanner
+
+on:
+  schedule:
+    - cron: '45 12 * * 1-5'   # Lun–Ven, 12:45 UTC
+
+  # Permette trigger manuale dalla tab "Actions" di GitHub
+  # Utile per test, debug o aggiornamento manuale della baseline
+  workflow_dispatch:
+
+jobs:
+  run-scanner:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25      # Blocca job bloccati: 25min >> tempo atteso di 5–10min
+
+    # Permesso esplicito di scrittura per il commit automatico
+    permissions:
+      contents: write
+
+    steps:
+      # --------------------------------------------------------
+      # Step 1: Checkout del repository con token di scrittura
+      # --------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Fetch completo per evitare problemi di push con history divergente
+          fetch-depth: 1
+
+      # --------------------------------------------------------
+      # Step 2: Setup Python 3.11 con cache pip
+      # --------------------------------------------------------
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'          # Cache dipendenze tra run consecutive
+
+      # --------------------------------------------------------
+      # Step 3: Installa dipendenze Python
+      # lxml e html5lib: parser alternativi per pandas.read_html()
+      # (Wikipedia può richiedere lxml se il default beautifulsoup4 fallisce)
+      # --------------------------------------------------------
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install \
+            pandas>=2.0.0 \
+            numpy>=1.26.0 \
+            requests>=2.31.0 \
+            lxml \
+            html5lib
+
+      # --------------------------------------------------------
+      # Step 4: Esegui il pre-market scanner
+      # Il token EODHD viene iniettato dal GitHub Secret EODHD_API_KEY.
+      # Setup: Settings → Secrets and variables → Actions → New secret
+      # --------------------------------------------------------
+      - name: Run pre-market scanner
+        env:
+          EODHD_API_KEY: ${{ secrets.EODHD_API_KEY }}
+        run: python premarket_scanner.py
+
+      # --------------------------------------------------------
+      # Step 5: Commit e push di baseline.json + manifest.json
+      #
+      # `git diff --staged --quiet || git commit ...`:
+      #   Committa SOLO se ci sono modifiche reali.
+      #   Evita commit vuoti nei giorni di mercato chiuso (festività
+      #   USA in cui il workflow gira ma il bulk EOD non cambia).
+      # --------------------------------------------------------
+      - name: Commit and push baseline files
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "VORT Bot"
+          git add baseline.json manifest.json
+          git diff --staged --quiet \
+            || git commit -m "chore(vort): update baseline $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push
