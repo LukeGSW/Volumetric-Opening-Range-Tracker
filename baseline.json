@@ -1,6 +1,6 @@
 {
   "NVDA": {
-    "avg_open_vol": 27693023,
+    "avg_open_vol": 26969548,
     "prev_close": 175.2
   },
   "SMCI": {
@@ -8,7 +8,7 @@
     "prev_close": 22.23
   },
   "INTC": {
-    "avg_open_vol": 15102436,
+    "avg_open_vol": 15017418,
     "prev_close": 44.06
   },
   "TSLA": {
@@ -16,11 +16,11 @@
     "prev_close": 383.03
   },
   "PLTR": {
-    "avg_open_vol": 8696522,
+    "avg_open_vol": 8851264,
     "prev_close": 154.78
   },
   "MU": {
-    "avg_open_vol": 7803738,
+    "avg_open_vol": 8031412,
     "prev_close": 395.53
   },
   "MSFT": {
@@ -28,7 +28,7 @@
     "prev_close": 372.74
   },
   "T": {
-    "avg_open_vol": 3299940,
+    "avg_open_vol": 3522704,
     "prev_close": 28.87
   },
   "BAC": {
@@ -36,15 +36,15 @@
     "prev_close": 48.14
   },
   "GOOGL": {
-    "avg_open_vol": 4980023,
+    "avg_open_vol": 4735177,
     "prev_close": 290.44
   },
   "PFE": {
-    "avg_open_vol": 4235770,
+    "avg_open_vol": 4058335,
     "prev_close": 26.96
   },
   "AMZN": {
-    "avg_open_vol": 7810861,
+    "avg_open_vol": 7806716,
     "prev_close": 207.24
   },
   "TTD": {
@@ -52,7 +52,7 @@
     "prev_close": 22.34
   },
   "NFLX": {
-    "avg_open_vol": 7167440,
+    "avg_open_vol": 6642192,
     "prev_close": 90.92
   },
   "HPE": {
@@ -60,7 +60,7 @@
     "prev_close": 23.9
   },
   "HOOD": {
-    "avg_open_vol": 5230453,
+    "avg_open_vol": 4841050,
     "prev_close": 69.08
   },
   "AAPL": {
@@ -68,23 +68,23 @@
     "prev_close": 251.64
   },
   "GOOG": {
-    "avg_open_vol": 3285728,
+    "avg_open_vol": 3207434,
     "prev_close": 289.2
   },
   "F": {
-    "avg_open_vol": 6653709,
+    "avg_open_vol": 6367628,
     "prev_close": 11.84
   },
   "AMD": {
-    "avg_open_vol": 5300741,
+    "avg_open_vol": 5210780,
     "prev_close": 205.37
   },
   "XOM": {
-    "avg_open_vol": 2167486,
+    "avg_open_vol": 2194864,
     "prev_close": 165.38
   },
   "ORCL": {
-    "avg_open_vol": 3803234,
+    "avg_open_vol": 3752933,
     "prev_close": 147.09
   },
   "CCL": {
@@ -100,11 +100,11 @@
     "prev_close": 27.28
   },
   "CSCO": {
-    "avg_open_vol": 1880254,
+    "avg_open_vol": 1832011,
     "prev_close": 80.86
   },
   "PCG": {
-    "avg_open_vol": 1274001,
+    "avg_open_vol": 1293213,
     "prev_close": 17.34
   },
   "COIN": {
@@ -112,23 +112,23 @@
     "prev_close": 181.04
   },
   "DVN": {
-    "avg_open_vol": 1360715,
+    "avg_open_vol": 1406248,
     "prev_close": 50.27
   },
   "VZ": {
-    "avg_open_vol": 3023556,
+    "avg_open_vol": 2913326,
     "prev_close": 50.91
   },
   "AVGO": {
-    "avg_open_vol": 3642118,
+    "avg_open_vol": 3403053,
     "prev_close": 318.29
   },
   "EL": {
-    "avg_open_vol": 331493,
+    "avg_open_vol": 332219,
     "prev_close": 71.48
   },
   "SLB": {
-    "avg_open_vol": 2085667,
+    "avg_open_vol": 2148294,
     "prev_close": 50.51
   },
   "PYPL": {
@@ -136,23 +136,23 @@
     "prev_close": 44.21
   },
   "RF": {
-    "avg_open_vol": 1080035,
+    "avg_open_vol": 1130727,
     "prev_close": 25.64
   },
   "WFC": {
-    "avg_open_vol": 1854262,
+    "avg_open_vol": 1785611,
     "prev_close": 79.61
   },
   "CMCSA": {
-    "avg_open_vol": 1946475,
+    "avg_open_vol": 1894625,
     "prev_close": 29.22
   },
   "CRM": {
-    "avg_open_vol": 1753719,
+    "avg_open_vol": 1796741,
     "prev_close": 183.02
   },
   "NOW": {
-    "avg_open_vol": 2750717,
+    "avg_open_vol": 2709624,
     "prev_close": 104.65
   },
   "GLW": {
@@ -160,43 +160,43 @@
     "prev_close": 142.01
   },
   "WMT": {
-    "avg_open_vol": 2352049,
+    "avg_open_vol": 2178246,
     "prev_close": 122.05
   },
   "FCX": {
-    "avg_open_vol": 2453926,
+    "avg_open_vol": 2396948,
     "prev_close": 56.48
   },
   "CVX": {
-    "avg_open_vol": 1288150,
+    "avg_open_vol": 1332896,
     "prev_close": 206.79
   },
   "DOW": {
-    "avg_open_vol": 1226289,
+    "avg_open_vol": 1313775,
     "prev_close": 38.31
   },
   "DELL": {
-    "avg_open_vol": 1056226,
+    "avg_open_vol": 1086376,
     "prev_close": 176.91
   },
   "KO": {
-    "avg_open_vol": 1817897,
+    "avg_open_vol": 1796900,
     "prev_close": 74.67
   },
   "KVUE": {
-    "avg_open_vol": 1529611,
+    "avg_open_vol": 1568800,
     "prev_close": 17.55
   },
   "AES": {
-    "avg_open_vol": 1236884,
+    "avg_open_vol": 1404430,
     "prev_close": 14.13
   },
   "OXY": {
-    "avg_open_vol": 3184128,
+    "avg_open_vol": 3267574,
     "prev_close": 61.25
   },
   "CMG": {
-    "avg_open_vol": 1677717,
+    "avg_open_vol": 1617562,
     "prev_close": 32.76
   }
 }
