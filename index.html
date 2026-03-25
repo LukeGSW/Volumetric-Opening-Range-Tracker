@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VORT — Volumetric Opening Range Tracker</title>
+
+  <!-- TailwindCSS Play CDN (JIT, supporta tutte le classi utility) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            // Palette dark "quant" coerente con altri tool Kriterion
+            surface:  '#0f1117',
+            card:     '#161b22',
+            border:   '#21262d',
+            muted:    '#8b949e',
+          },
+          fontFamily: {
+            mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- JetBrains Mono — font monospace professionale per dati finanziari -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* ── Base ─────────────────────────────────────────────── */
+    body { background-color: #0f1117; font-family: 'JetBrains Mono', monospace; }
+
+    /* ── Scrollbar dark ───────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #161b22; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #58a6ff; }
+
+    /* ── Tabella ──────────────────────────────────────────── */
+    #data-table tbody tr {
+      border-bottom: 1px solid #21262d;
+      transition: background-color 0.15s ease;
+    }
+    #data-table tbody tr:hover { background-color: #1c2128; }
+
+    /* ── RVOL badge — aggiornato via JS ──────────────────── */
+    .rvol-extreme  { background: rgba(16,185,129,0.20); color: #34d399; font-weight:700; }
+    .rvol-high     { background: rgba(16,185,129,0.10); color: #6ee7b7; }
+    .rvol-normal   { color: #e6edf3; }
+    .rvol-low      { color: #8b949e; }
+
+    /* ── Delta volume bar ─────────────────────────────────── */
+    .delta-bar {
+      height: 6px;
+      border-radius: 3px;
+      background: #21262d;
+      overflow: hidden;
+      position: relative;
+    }
+    .delta-bar-fill-buy  { height: 100%; background: #238636; transition: width 0.4s ease; }
+    .delta-bar-fill-sell { height: 100%; background: #da3633; transition: width 0.4s ease; }
+
+    /* ── Pulse indicator — tick attivo ───────────────────── */
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.2; }
+    }
+    .tick-active   { animation: pulse-dot 1s ease-in-out infinite; }
+    .tick-inactive { opacity: 0.25; }
+
+    /* ── Modal overlay ───────────────────────────────────── */
+    #token-modal {
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    /* ── Countdown blink under 5min ──────────────────────── */
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .blink { animation: blink 1s step-end infinite; }
+
+    /* ── Row highlight su aggiornamento ─────────────────── */
+    @keyframes rowflash { 0%{background:#1f2d3d} 100%{background:transparent} }
+    .row-flash { animation: rowflash 0.5s ease-out; }
+  </style>
+</head>
+
+<body class="min-h-screen text-gray-200">
+
+  <!-- ╔══════════════════════════════════════════════════╗ -->
+  <!-- ║  MODAL — Inserimento API Token (primo accesso)  ║ -->
+  <!-- ╚══════════════════════════════════════════════════╝ -->
+  <div
+    id="token-modal"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+    style="display:none !important;"
+  >
+    <div class="bg-card border border-border rounded-xl p-8 w-full max-w-md shadow-2xl">
+
+      <!-- Logo + titolo -->
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center">
+          <span class="text-blue-400 text-lg font-bold">V</span>
+        </div>
+        <div>
+          <h2 class="text-white font-bold text-lg tracking-tight">VORT Setup</h2>
+          <p class="text-muted text-xs">Volumetric Opening Range Tracker</p>
+        </div>
+      </div>
+
+      <p class="text-gray-400 text-sm mb-5 leading-relaxed">
+        Inserisci la tua chiave API EODHD. Verrà salvata nel browser
+        (<code class="text-blue-400 text-xs bg-surface px-1 rounded">localStorage</code>)
+        e non sarà mai trasmessa a server esterni.
+      </p>
+
+      <!-- Input -->
+      <div class="mb-4">
+        <label class="block text-xs text-muted mb-1.5 uppercase tracking-wider">
+          EODHD API Token
+        </label>
+        <input
+          id="token-input"
+          type="password"
+          placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          class="w-full bg-surface border border-border rounded-lg px-4 py-3
+                 text-sm text-white placeholder-gray-600 font-mono
+                 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50
+                 transition-all"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <p id="token-error" class="text-red-400 text-xs mt-1.5 hidden">
+          Chiave non valida. Deve essere una stringa non vuota.
+        </p>
+      </div>
+
+      <!-- Toggle visibilità -->
+      <label class="flex items-center gap-2 text-xs text-muted mb-5 cursor-pointer select-none">
+        <input type="checkbox" id="token-show" class="accent-blue-500" />
+        Mostra token
+      </label>
+
+      <!-- Bottone salva -->
+      <button
+        id="token-save-btn"
+        class="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700
+               text-white font-semibold py-3 rounded-lg transition-colors
+               focus:outline-none focus:ring-2 focus:ring-blue-400"
+      >
+        Salva e avvia VORT
+      </button>
+
+      <p class="text-center text-xs text-muted mt-4">
+        Ottieni la tua chiave su
+        <a href="https://eodhd.com" target="_blank" class="text-blue-400 hover:text-blue-300 underline">
+          eodhd.com
+        </a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ╔══════════════════════════════════════════════════╗ -->
+  <!-- ║  HEADER                                         ║ -->
+  <!-- ╚══════════════════════════════════════════════════╝ -->
+  <header class="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-screen-2xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+
+      <!-- Brand -->
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-md bg-blue-600/20 border border-blue-500/30 flex items-center justify-center flex-shrink-0">
+          <span class="text-blue-400 text-sm font-bold">V</span>
+        </div>
+        <div>
+          <span class="text-white font-bold text-sm tracking-tight">VORT</span>
+          <span class="text-muted text-xs ml-2 hidden sm:inline">Volumetric Opening Range Tracker</span>
+        </div>
+      </div>
+
+      <!-- Stats rapide -->
+      <div class="flex items-center gap-4 text-xs font-mono">
+
+        <!-- Stato mercato -->
+        <div class="flex items-center gap-1.5">
+          <span
+            id="market-dot"
+            class="w-2 h-2 rounded-full bg-gray-500 tick-inactive"
+          ></span>
+          <span id="market-status" class="text-muted">—</span>
+        </div>
+
+        <!-- Countdown / orario -->
+        <div class="hidden sm:flex items-center gap-1.5 text-muted">
+          <span class="opacity-50">⏱</span>
+          <span id="header-clock">—</span>
+        </div>
+
+        <!-- Ticker conteggio -->
+        <div class="hidden md:flex items-center gap-1 text-muted">
+          <span id="ticker-count">0</span>
+          <span class="opacity-50">/ 50 tickers</span>
+        </div>
+
+        <!-- Stato WebSocket -->
+        <div
+          id="ws-badge"
+          class="px-2 py-0.5 rounded text-xs border border-gray-700 text-muted"
+        >
+          OFFLINE
+        </div>
+      </div>
+
+      <!-- Reset token -->
+      <button
+        id="reset-token-btn"
+        title="Reset API Token"
+        class="text-xs text-muted hover:text-red-400 transition-colors px-2 py-1
+               border border-transparent hover:border-red-800/50 rounded"
+      >
+        ⚙ Reset Token
+      </button>
+    </div>
+  </header>
+
+  <!-- ╔══════════════════════════════════════════════════╗ -->
+  <!-- ║  STATS BAR                                      ║ -->
+  <!-- ╚══════════════════════════════════════════════════╝ -->
+  <div class="border-b border-border bg-surface/60">
+    <div class="max-w-screen-2xl mx-auto px-4 py-2 grid grid-cols-2 sm:grid-cols-4 gap-3">
+
+      <div class="text-center">
+        <div class="text-muted text-xs uppercase tracking-wider mb-0.5">ORB Window</div>
+        <div id="stat-orb-status" class="text-sm font-semibold text-yellow-400">—</div>
+      </div>
+
+      <div class="text-center">
+        <div class="text-muted text-xs uppercase tracking-wider mb-0.5">Anomalie RVOL &gt;150%</div>
+        <div id="stat-anomalies" class="text-sm font-semibold text-emerald-400">0</div>
+      </div>
+
+      <div class="text-center">
+        <div class="text-muted text-xs uppercase tracking-wider mb-0.5">Baseline data</div>
+        <div id="stat-baseline-date" class="text-sm font-semibold text-blue-400">—</div>
+      </div>
+
+      <div class="text-center">
+        <div class="text-muted text-xs uppercase tracking-wider mb-0.5">Ticks ricevuti</div>
+        <div id="stat-ticks" class="text-sm font-semibold text-gray-300">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ╔══════════════════════════════════════════════════╗ -->
+  <!-- ║  MAIN TABLE                                     ║ -->
+  <!-- ╚══════════════════════════════════════════════════╝ -->
+  <main class="max-w-screen-2xl mx-auto px-4 py-4">
+
+    <!-- Banner informativo pre-apertura / errore -->
+    <div id="info-banner" class="hidden mb-4 p-4 rounded-lg border text-sm"></div>
+
+    <!-- Wrapper tabella con scroll orizzontale su mobile -->
+    <div class="rounded-xl border border-border overflow-hidden">
+      <div class="overflow-x-auto">
+        <table id="data-table" class="w-full text-xs font-mono border-collapse">
+
+          <thead>
+            <tr class="bg-card border-b border-border text-muted uppercase tracking-wider">
+              <th class="px-3 py-3 text-left w-8">#</th>
+              <th class="px-3 py-3 text-left">Ticker</th>
+              <th class="px-3 py-3 text-right">Prezzo</th>
+              <th class="px-3 py-3 text-right">Δ%</th>
+              <th class="px-3 py-3 text-right">Vol Live</th>
+              <th class="px-3 py-3 text-right">Baseline</th>
+              <th class="px-3 py-3 text-center min-w-[100px]">
+                RVOL%
+                <span class="text-gray-600 font-normal normal-case ml-1">(live/baseline)</span>
+              </th>
+              <th class="px-3 py-3 text-center min-w-[160px]">
+                Delta Volume
+                <span class="text-gray-600 font-normal normal-case ml-1">(tick rule)</span>
+              </th>
+              <th class="px-3 py-3 text-center w-6" title="Attività tick recenti">●</th>
+            </tr>
+          </thead>
+
+          <tbody id="table-body">
+            <!-- Righe generate dinamicamente da app.js -->
+            <tr id="empty-row">
+              <td colspan="9" class="text-center py-16 text-muted">
+                <div class="text-4xl mb-3 opacity-30">📊</div>
+                <div class="text-sm">In attesa del caricamento della baseline...</div>
+                <div class="text-xs mt-1 opacity-50">La baseline viene aggiornata ogni mattina prima delle 09:30 EST</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Legenda RVOL -->
+    <div class="mt-3 flex flex-wrap gap-3 text-xs text-muted">
+      <span class="font-semibold text-gray-500">RVOL:</span>
+      <span class="rvol-extreme px-2 py-0.5 rounded">&gt;200% Estremo</span>
+      <span class="rvol-high px-2 py-0.5 rounded">150–200% Alto</span>
+      <span class="rvol-normal px-2 py-0.5 rounded bg-surface">100–150% Normale</span>
+      <span class="rvol-low px-2 py-0.5 rounded">&lt;100% Basso</span>
+      <span class="ml-auto opacity-50">Delta Volume calcolato con Tick Rule (approssimazione)</span>
+    </div>
+  </main>
+
+  <!-- ╔══════════════════════════════════════════════════╗ -->
+  <!-- ║  FOOTER                                         ║ -->
+  <!-- ╚══════════════════════════════════════════════════╝ -->
+  <footer class="border-t border-border mt-8 py-4">
+    <div class="max-w-screen-2xl mx-auto px-4 flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
+      <span>
+        VORT · <a href="https://kriterionquant.com" target="_blank" class="hover:text-blue-400 transition-colors">Kriterion Quant</a>
+        · Dati: <a href="https://eodhd.com" target="_blank" class="hover:text-blue-400 transition-colors">EODHD</a>
+      </span>
+      <span class="opacity-50">
+        Solo a scopo informativo. Non costituisce consulenza finanziaria.
+      </span>
+    </div>
+  </footer>
+
+  <!-- App logic -->
+  <script src="app.js"></script>
+</body>
+</html>
