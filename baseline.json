@@ -1,202 +1,202 @@
 {
   "NVDA": {
     "avg_open_vol": 27693023,
-    "prev_close": 178.68
+    "prev_close": 171.24
   },
   "INTC": {
     "avg_open_vol": 15102436,
-    "prev_close": 47.18
-  },
-  "SMCI": {
-    "avg_open_vol": 3165915,
-    "prev_close": 24.05
-  },
-  "MU": {
-    "avg_open_vol": 8307053,
-    "prev_close": 382.09
-  },
-  "TSLA": {
-    "avg_open_vol": 10898427,
-    "prev_close": 385.95
-  },
-  "HPE": {
-    "avg_open_vol": 1168827,
-    "prev_close": 25.78
-  },
-  "AMD": {
-    "avg_open_vol": 5300741,
-    "prev_close": 220.27
-  },
-  "PLTR": {
-    "avg_open_vol": 8851264,
-    "prev_close": 154.96
-  },
-  "F": {
-    "avg_open_vol": 6287878,
-    "prev_close": 11.67
-  },
-  "PFE": {
-    "avg_open_vol": 4058335,
-    "prev_close": 27.28
-  },
-  "T": {
-    "avg_open_vol": 3522704,
-    "prev_close": 28.81
-  },
-  "AMZN": {
-    "avg_open_vol": 7754860,
-    "prev_close": 211.71
-  },
-  "MSFT": {
-    "avg_open_vol": 5034975,
-    "prev_close": 371.04
-  },
-  "BAC": {
-    "avg_open_vol": 5331908,
-    "prev_close": 48.75
+    "prev_close": 44.1
   },
   "NFLX": {
     "avg_open_vol": 6642192,
-    "prev_close": 92.28
+    "prev_close": 93.32
   },
-  "GOOGL": {
-    "avg_open_vol": 4735177,
-    "prev_close": 290.93
+  "TSLA": {
+    "avg_open_vol": 10898427,
+    "prev_close": 372.11
+  },
+  "MU": {
+    "avg_open_vol": 8307053,
+    "prev_close": 355.46
+  },
+  "SMCI": {
+    "avg_open_vol": 3165915,
+    "prev_close": 22.21
+  },
+  "AMD": {
+    "avg_open_vol": 5300741,
+    "prev_close": 203.77
+  },
+  "AMZN": {
+    "avg_open_vol": 7754860,
+    "prev_close": 207.54
+  },
+  "PLTR": {
+    "avg_open_vol": 8851264,
+    "prev_close": 147.56
   },
   "AAPL": {
     "avg_open_vol": 5486278,
-    "prev_close": 252.62
+    "prev_close": 252.89
   },
-  "HOOD": {
-    "avg_open_vol": 5230453,
-    "prev_close": 72.54
+  "GOOGL": {
+    "avg_open_vol": 4735177,
+    "prev_close": 280.92
   },
-  "WBD": {
-    "avg_open_vol": 1682498,
-    "prev_close": 27.22
+  "MSFT": {
+    "avg_open_vol": 5034975,
+    "prev_close": 365.97
   },
-  "CCL": {
-    "avg_open_vol": 3574699,
-    "prev_close": 25.73
+  "META": {
+    "avg_open_vol": 2266176,
+    "prev_close": 547.54
   },
-  "SLB": {
-    "avg_open_vol": 2071616,
-    "prev_close": 51.89
+  "BAC": {
+    "avg_open_vol": 5331908,
+    "prev_close": 48.24
   },
-  "CSCO": {
-    "avg_open_vol": 1832011,
-    "prev_close": 81.83
-  },
-  "KVUE": {
-    "avg_open_vol": 1477959,
-    "prev_close": 17.66
-  },
-  "CMCSA": {
-    "avg_open_vol": 1869861,
-    "prev_close": 28.73
-  },
-  "HBAN": {
-    "avg_open_vol": 1991631,
-    "prev_close": 15.54
-  },
-  "VZ": {
-    "avg_open_vol": 2838477,
-    "prev_close": 50.37
+  "BF-B": {
+    "avg_open_vol": 363271,
+    "prev_close": 25.74
   },
   "GOOG": {
     "avg_open_vol": 3207434,
-    "prev_close": 289.59
+    "prev_close": 280.74
+  },
+  "PFE": {
+    "avg_open_vol": 4058335,
+    "prev_close": 27.57
+  },
+  "CSCO": {
+    "avg_open_vol": 1832011,
+    "prev_close": 82.16
+  },
+  "CMCSA": {
+    "avg_open_vol": 1869861,
+    "prev_close": 28.72
+  },
+  "HPE": {
+    "avg_open_vol": 1168827,
+    "prev_close": 25.07
+  },
+  "F": {
+    "avg_open_vol": 6287878,
+    "prev_close": 11.6
+  },
+  "T": {
+    "avg_open_vol": 3522704,
+    "prev_close": 28.92
+  },
+  "CCL": {
+    "avg_open_vol": 3574699,
+    "prev_close": 25.28
+  },
+  "WBD": {
+    "avg_open_vol": 1682498,
+    "prev_close": 27.07
   },
   "HPQ": {
     "avg_open_vol": 1986174,
-    "prev_close": 19.46
+    "prev_close": 19.32
   },
-  "ORCL": {
-    "avg_open_vol": 3640887,
-    "prev_close": 146.02
+  "VZ": {
+    "avg_open_vol": 2838477,
+    "prev_close": 50.74
   },
-  "SNDK": {
-    "avg_open_vol": 3851138,
-    "prev_close": 677.86
-  },
-  "AVGO": {
-    "avg_open_vol": 3403053,
-    "prev_close": 318.81
-  },
-  "CAG": {
-    "avg_open_vol": 997653,
-    "prev_close": 15.32
-  },
-  "WFC": {
-    "avg_open_vol": 1756704,
-    "prev_close": 80.26
-  },
-  "XOM": {
-    "avg_open_vol": 2257117,
-    "prev_close": 163.26
-  },
-  "NCLH": {
-    "avg_open_vol": 2413913,
-    "prev_close": 20.22
-  },
-  "WMT": {
-    "avg_open_vol": 2178246,
-    "prev_close": 123.06
-  },
-  "TTD": {
-    "avg_open_vol": 1716166,
-    "prev_close": 21.97
-  },
-  "PCG": {
-    "avg_open_vol": 1293213,
-    "prev_close": 17.44
-  },
-  "KMI": {
-    "avg_open_vol": 983693,
-    "prev_close": 33.98
-  },
-  "RF": {
-    "avg_open_vol": 1175682,
-    "prev_close": 25.76
-  },
-  "KO": {
-    "avg_open_vol": 1785145,
-    "prev_close": 75.25
-  },
-  "NOW": {
-    "avg_open_vol": 2655604,
-    "prev_close": 103.06
-  },
-  "PYPL": {
-    "avg_open_vol": 2686036,
-    "prev_close": 44.85
+  "HOOD": {
+    "avg_open_vol": 5230453,
+    "prev_close": 70.35
   },
   "OXY": {
     "avg_open_vol": 3267574,
-    "prev_close": 61.85
+    "prev_close": 64.36
+  },
+  "AVGO": {
+    "avg_open_vol": 3403053,
+    "prev_close": 309.42
+  },
+  "HBAN": {
+    "avg_open_vol": 1991631,
+    "prev_close": 15.43
+  },
+  "PCG": {
+    "avg_open_vol": 1293213,
+    "prev_close": 17.37
+  },
+  "SNDK": {
+    "avg_open_vol": 3851138,
+    "prev_close": 603.17
+  },
+  "XOM": {
+    "avg_open_vol": 2257117,
+    "prev_close": 165.43
+  },
+  "RF": {
+    "avg_open_vol": 1175682,
+    "prev_close": 25.51
+  },
+  "ORCL": {
+    "avg_open_vol": 3640887,
+    "prev_close": 142.81
+  },
+  "WMT": {
+    "avg_open_vol": 2178246,
+    "prev_close": 122.18
   },
   "FCX": {
     "avg_open_vol": 2396948,
-    "prev_close": 57.09
+    "prev_close": 55.83
   },
-  "KHC": {
-    "avg_open_vol": 1436209,
-    "prev_close": 21.51
+  "UBER": {
+    "avg_open_vol": 2428541,
+    "prev_close": 70.55
   },
-  "CMG": {
-    "avg_open_vol": 1617562,
-    "prev_close": 32.5
+  "HAL": {
+    "avg_open_vol": 1295656,
+    "prev_close": 38.79
+  },
+  "WFC": {
+    "avg_open_vol": 1756704,
+    "prev_close": 79.02
+  },
+  "KVUE": {
+    "avg_open_vol": 1477959,
+    "prev_close": 17.57
+  },
+  "PYPL": {
+    "avg_open_vol": 2686036,
+    "prev_close": 45.2
   },
   "AES": {
     "avg_open_vol": 1404430,
-    "prev_close": 14.06
+    "prev_close": 14.01
   },
-  "CSX": {
-    "avg_open_vol": 815624,
-    "prev_close": 39.57
+  "SLB": {
+    "avg_open_vol": 2071616,
+    "prev_close": 52.31
   },
-  "NKE": {
-    "avg_open_vol": 2026785,
-    "prev_close": 52.98
+  "TTD": {
+    "avg_open_vol": 1716166,
+    "prev_close": 21.74
+  },
+  "NCLH": {
+    "avg_open_vol": 2413913,
+    "prev_close": 19.85
+  },
+  "DVN": {
+    "avg_open_vol": 1406248,
+    "prev_close": 51.35
+  },
+  "CAG": {
+    "avg_open_vol": 997653,
+    "prev_close": 15.2
+  },
+  "LRCX": {
+    "avg_open_vol": 1200401,
+    "prev_close": 211.62
+  },
+  "KHC": {
+    "avg_open_vol": 1436209,
+    "prev_close": 21.56
   }
 }
